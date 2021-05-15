@@ -1,4 +1,4 @@
-# wobbling_letters_text
+# wavy_letters_text
 
 A new Flutter project.
 
