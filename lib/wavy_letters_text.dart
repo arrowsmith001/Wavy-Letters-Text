@@ -33,7 +33,7 @@ class _WavyLettersTextState extends State<WavyLettersText> with SingleTickerProv
       color: Colors.yellow,
       child: CustomPaint(
         painter: MyTextPainter(widget.text, _animationController.value),
-        size: Size(300,500),
+        size: Size(200,500),
       ),
     );
   }
@@ -55,37 +55,51 @@ class MyTextPainter extends CustomPainter {
     var style = TextStyle(color: Colors.blue[800], fontSize: 32);
 
     for(int i = 0; i < text.length; i++){
-      drawLetter(canvas, text[i]);
+      drawLetter(canvas, text[i], i, size);
     }
   }
 
   bool b = true;
   double offset = 1;
 
-  void drawLetter(Canvas canvas, String letter) {
+  double cursorX = 0;
+
+  void drawLetter(Canvas canvas, String letter, int i, Size size) {
     _textPainter.text = TextSpan(text: letter, style: TextStyle(color: Colors.blue[800], fontSize: 32));
     _textPainter.layout(minWidth: 0, maxWidth: double.maxFinite);
 
     final double d = _textPainter.maxIntrinsicWidth;
-    double dy = offset * math.sin(2*math.pi*(-1 + 2*value));
-    double dx = offset * 0.5 * math.cos(2*math.pi*(1 - 2*value));
+    double dy = offset * (math.sin(2*math.pi*(-1 + 0.5 + 2*value) + i));
+    double dx = offset * 0.5 * math.cos(2*math.pi*(1 - 2*value) + i);
 
-    double sval = math.cos(2*math.pi*(-1 + 2*value) + math.pi);
+    double scaleValue = math.cos(2*math.pi*(-1 + 2*value) + math.pi);
 
     if(b) dy = -dy;
     if(b) dx = -dx;
-    if(b) sval = -sval;
+    if(b) scaleValue = -scaleValue;
     b = !b;
 
-    double s = 1 + 0.05*sval;
+    double s = 1 + 0.05*scaleValue;
 
-    //canvas.translate(-_textPainter.width/2, -_textPainter.height/2);
-    canvas.scale(s, s);
+    // TODO: Implement scale change about the center of a letter glyph
+    // double cx = size.width/2 + dx;
+    // double cy = size.height/2 + dy;
+    // canvas.translate(cx, cy);
+    // canvas.scale(s, s);
+    // _textPainter.paint(canvas, Offset(dx, dy));
+    // canvas.scale(1/s, 1/s);
+    // canvas.translate(-cx, -cy);
+
     _textPainter.paint(canvas, Offset(dx, dy));
-    canvas.scale(1/s, 1/s);
-    //canvas.translate(_textPainter.width/2, _textPainter.height/2);
 
-    canvas.translate(d, 0);
+    cursorX += d;
+    if(cursorX >= size.width){
+      canvas.translate(-cursorX + d, _textPainter.height);
+      cursorX = 0;
+    }
+    else{
+      canvas.translate(d, 0);
+    }
   }
 
   @override
